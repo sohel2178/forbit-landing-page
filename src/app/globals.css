@@ -1,26 +1,411 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* ------------------------------------------------------------------ */
+/*  FORBIT design tokens                                               */
+/*  Fixed brand colours + semantic tokens that switch with the theme.  */
+/* ------------------------------------------------------------------ */
 @theme inline {
+  /* Brand palette (from the official logo) — identical in both themes */
+  --color-brand: #48b755;
+  --color-brand-deep: #278b3c;
+  --color-brand-bright: #59d46b;
+  --color-on-brand: #06120a;
+
+  /* Fixed neutrals (used inside always-dark device mockups) */
+  --color-ink: #080b0d;
+  --color-ink-2: #111820;
+
+  /* Semantic, theme-aware */
+  --color-canvas: var(--t-base);
+  --color-canvas-alt: var(--t-base-alt);
+  --color-surface: var(--t-surface);
+  --color-surface-2: var(--t-surface-2);
+  --color-fg: var(--t-fg);
+  --color-fg-muted: var(--t-fg-muted);
+  --color-brand-fg: var(--t-brand-fg);
+
+  /* Typography */
+  /* Latin font first; Bengali glyphs fall through to the Bengali font. */
+  --font-sans: var(--font-inter), var(--font-noto-bengali), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-anek-bangla), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), var(--font-noto-bengali), ui-monospace, monospace;
+  --font-heading: var(--font-space-grotesk), var(--font-anek-bangla), sans-serif;
+
+  /* shadcn semantic mapping */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+
+  --animate-flow: flow 1.6s linear infinite;
+  --animate-spin-slow: spin 40s linear infinite;
+  --animate-pulse-ring: pulse-ring 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-rise: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-charge: charge 4s ease-in-out infinite;
+  --animate-sheen: sheen 3.2s ease-in-out infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ------------------------------------------------------------------ */
+/*  Themes                                                             */
+/*  <html data-theme="dark|light"> is set before first paint by the    */
+/*  inline script in src/components/theme/theme-script.ts.             */
+/*  `.theme-dark` re-declares the dark palette for islands (device     */
+/*  mockups, consoles) that must stay dark inside a light page.        */
+/* ------------------------------------------------------------------ */
+:root,
+[data-theme="dark"],
+.theme-dark {
+  --t-base: #080b0d;
+  --t-base-alt: #0c1113;
+  --t-surface: #141a1d;
+  --t-surface-2: #1a2226;
+  --t-fg: #f4f7f5;
+  --t-fg-muted: #89948e;
+  --t-brand-fg: #59d46b;
+  --t-grid: rgb(255 255 255 / 0.045);
+  --t-trace: #27312b;
+  --t-trace-ghost: #1d2622;
+  --t-node: rgb(8 11 13 / 0.8);
+  --t-gradient: linear-gradient(100deg, #59d46b 0%, #48b755 45%, #b6f0bd 100%);
+
+  --background: #080b0d;
+  --foreground: #f4f7f5;
+  --card: #141a1d;
+  --card-foreground: #f4f7f5;
+  --popover: #111820;
+  --popover-foreground: #f4f7f5;
+  --primary: #48b755;
+  --primary-foreground: #06120a;
+  --secondary: #141a1d;
+  --secondary-foreground: #f4f7f5;
+  --muted: #141a1d;
+  --muted-foreground: #89948e;
+  --accent: #1b2a21;
+  --accent-foreground: #f4f7f5;
+  --destructive: #f26d6d;
+  --border: #27312b;
+  --input: #2c3831;
+  --ring: #48b755;
+  --radius: 0.5rem;
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --t-base: #ffffff;
+  --t-base-alt: #f5f8f6;
+  --t-surface: #ffffff;
+  --t-surface-2: #eef3f0;
+  --t-fg: #171b19;
+  --t-fg-muted: #5c6661;
+  --t-brand-fg: #23803a;
+  --t-grid: rgb(23 27 25 / 0.055);
+  --t-trace: #c9d3cd;
+  --t-trace-ghost: #e3e9e5;
+  --t-node: rgb(255 255 255 / 0.9);
+  --t-gradient: linear-gradient(100deg, #23803a 0%, #2f9e47 50%, #48b755 100%);
+
+  --background: #ffffff;
+  --foreground: #171b19;
+  --card: #ffffff;
+  --card-foreground: #171b19;
+  --popover: #ffffff;
+  --popover-foreground: #171b19;
+  --primary: #48b755;
+  --primary-foreground: #06120a;
+  --secondary: #f1f4f2;
+  --secondary-foreground: #171b19;
+  --muted: #f1f4f2;
+  --muted-foreground: #5c6661;
+  --accent: #e7f4ea;
+  --accent-foreground: #171b19;
+  --destructive: #d14343;
+  --border: #dde4e0;
+  --input: #d3dbd6;
+  --ring: #48b755;
+  color-scheme: light;
+}
+
+/* Islands inside a light page must also reset colour-scheme. */
+[data-theme="light"] .theme-dark {
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-canvas text-fg antialiased;
+    overflow-x: clip;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--color-brand) 35%, transparent);
+    color: var(--t-fg);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Smooth colour change when the visitor toggles the theme. */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    color 0.35s ease,
+    fill 0.35s ease,
+    stroke 0.35s ease !important;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Utilities                                                          */
+/* ------------------------------------------------------------------ */
+@utility font-display {
+  font-family: var(--font-space-grotesk), var(--font-anek-bangla), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.03em;
+}
+
+@utility label-mono {
+  font-family: var(--font-jetbrains-mono), var(--font-noto-bengali), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Engineering grid — line colour follows the theme */
+@utility grid-bg {
+  background-image:
+    linear-gradient(to right, var(--t-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--t-grid) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+@utility dot-bg {
+  background-image: radial-gradient(color-mix(in oklab, var(--t-fg) 8%, transparent) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+@utility mask-radial {
+  mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+}
+
+@utility mask-fade-b {
+  mask-image: linear-gradient(to bottom, #000 60%, transparent);
+}
+
+@utility glass {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--t-surface) 70%, transparent),
+    color-mix(in oklab, var(--t-surface) 40%, transparent)
+  );
+  border: 1px solid color-mix(in oklab, var(--t-fg) 9%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+@utility text-gradient-brand {
+  background: var(--t-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility hairline {
+  background: linear-gradient(90deg, transparent, rgb(72 183 85 / 0.55), transparent);
+  height: 1px;
+}
+
+/* Animated data flow along SVG traces */
+@utility flow-stroke {
+  stroke-dasharray: 5 15;
+  animation: var(--animate-flow);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Keyframes                                                          */
+/* ------------------------------------------------------------------ */
+@keyframes flow {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes charge {
+  0%,
+  100% {
+    transform: scaleY(0.94);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+@keyframes sheen {
+  0% {
+    transform: translateY(110%);
+  }
+  60%,
+  100% {
+    transform: translateY(-110%);
+  }
+}
+@keyframes flow-x {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 40px 0;
+  }
+}
+
+/* Moving gradient used for connector lines between HTML blocks */
+.flow-line {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgb(72 183 85 / 0.9) 0 6px,
+    transparent 6px 20px
+  );
+  background-size: 40px 1px;
+  animation: flow-x 1.4s linear infinite;
+}
+
+.flow-line-y {
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgb(72 183 85 / 0.9) 0 6px,
+    transparent 6px 20px
+  );
+  background-size: 1px 40px;
+  animation: flow-y 1.4s linear infinite;
+}
+@keyframes flow-y {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 40px;
+  }
+}
+
+/* SVG transform helper so CSS transforms use the element's own box */
+.origin-svg-center {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.origin-svg-bottom {
+  transform-box: fill-box;
+  transform-origin: bottom;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Bangla typography                                                  */
+/*  Bengali script has tall vowel signs above and below the baseline,  */
+/*  so headings need more leading, and wide tracking hurts legibility. */
+/* ------------------------------------------------------------------ */
+:lang(bn) body {
+  line-height: 1.7;
+}
+:lang(bn) .font-display,
+:lang(bn) h1,
+:lang(bn) h2,
+:lang(bn) h3,
+:lang(bn) h4 {
+  line-height: 1.3 !important;
+  letter-spacing: 0 !important;
+}
+:lang(bn) h1 {
+  font-size: clamp(2.3rem, 5.4vw, 4.4rem) !important;
+}
+:lang(bn) h2.font-display {
+  font-size: clamp(1.9rem, 4.2vw, 3.3rem) !important;
+}
+:lang(bn) .label-mono,
+:lang(bn) .uppercase {
+  letter-spacing: 0.02em !important;
+}
+:lang(bn) .label-mono {
+  font-size: 0.8rem;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Reduced motion                                                     */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  html.theme-transition * {
+    transition: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
